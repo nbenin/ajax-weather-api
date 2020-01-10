@@ -1,17 +1,18 @@
-(function () {
+//const myWeatherAppId = '315d1ad0799dca3ca95161a1d5776e7';
 
-    document.getElementById('Submit').addEventListener('click', function() {
-        queryWebsite().catch(error => {
-            console.log(error);
-        });
+// Make a request for a user with a given ID
+axios.get('https://pokeapi.co/api/v2/pokemon/ditto/')
+    .then(function (response) {
+// handle success
+        console.log(response);
+    })
+    .catch(function (error) {
+// handle error
+        console.log(error);
+    })
+    .finally(function () {
+// always executed
     });
 
-})();
 
-async function queryWebsite() {
 
-    const axios = require('axios');
-
-    const response = await axios.get('api.openweathermap.org/data/2.5/forecast?id=524901&appid=1315d1ad0799dca3ca95161a1d5776e7')
-    console.log(response);
-}
