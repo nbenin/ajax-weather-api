@@ -1,8 +1,6 @@
 // ASYNC FUNCTION LES GO
 (function () {
     document.getElementById('submit').addEventListener('click', function() {
-
-        // Async Function
         axiosRequest().catch(error => {
             console.log(error);
         });
@@ -22,7 +20,11 @@ async function axiosRequest() {
 
     // split array
     let arrayOfImportantInfo = splitObjectIntoFive(response.data);
+
+    // get medians
     let mediansOfEachDay = getMediansOfAllDays(arrayOfImportantInfo);
+
+    // add values in array to bootstrap cards
 
     console.log(response.data, arrayOfImportantInfo, mediansOfEachDay);
 }
@@ -43,10 +45,10 @@ function getMediansOfAllDays(unorganizedArray) {
 
         // loop through stuff here and add numbers
         for (let y = 0; y < unorganizedArray[x].length; y++) {
-            medianMaxTemp += unorganizedArray[x].main.temp_max;
-            medianMinTemp += unorganizedArray[x].main.temp_min;
-            medianWind += unorganizedArray[x].wind.speed;
-            medianHumidity += unorganizedArray[x].main.humidity;
+            medianMaxTemp += unorganizedArray[x][y].main.temp_max;
+            medianMinTemp += unorganizedArray[x][y].main.temp_min;
+            medianWind += unorganizedArray[x][y].wind.speed;
+            medianHumidity += unorganizedArray[x][y].main.humidity;
         }
 
         medianMaxTemp /= unorganizedArray[x].length;
@@ -69,13 +71,11 @@ function splitObjectIntoFive(weatherObj) {
     let today = [], tomorrow = [], todayPlusTwo = [], todayPlusThree = [], todayPlusFour = [];
     let splitArray = [today, tomorrow, todayPlusTwo, todayPlusThree, todayPlusFour];
     let currentFullDay = new Date();
-    //let currentHourMultipleOfThree = Math.floor(currentHours / 3) * 3;
 
     // compare dates, use difference factor to determine day, then organize
     for (let x = 0; x < weatherObj.list.length; x++) {
 
         let comparableDate = new Date(weatherObj.list[x].dt * 1000);
-        console.log(comparableDate);
         let factorOfComparableDate = comparableDate.getDate() - currentFullDay.getDate();
 
         switch (factorOfComparableDate) {
@@ -100,8 +100,6 @@ function splitObjectIntoFive(weatherObj) {
     }
     return splitArray;
 }
-
-
 
 // Class for new Weather Objects
 class DailyWeatherObject {
