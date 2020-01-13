@@ -2,10 +2,8 @@
 (function () {
     document.getElementById('submit').addEventListener('click', function() {
 
-        // my Id, always the same
-        const myWeatherAppId = '&APPID=1315d1ad0799dca3ca95161a1d5776e7&units=metric';
-
-        axiosRequest(myWeatherAppId).catch(error => {
+        // Async Function
+        axiosRequest().catch(error => {
             console.log(error);
         });
     });
@@ -14,11 +12,13 @@
 
 
 // async function for fetching url
-async function axiosRequest(myWeatherAppId) {
-    const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=London,uk' + myWeatherAppId);
+async function axiosRequest() {
+
+    // my Id, always the same
+    const myWeatherAppId = '&APPID=1315d1ad0799dca3ca95161a1d5776e7&units=metric';
+    const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=Antwerp,be' + myWeatherAppId);
 
     let arrayOfImportantInfo = splitObjectIntoFive(response.data);
-
 
     console.log(response.data, arrayOfImportantInfo);
 }
@@ -30,15 +30,15 @@ function splitObjectIntoFive(weatherObj) {
 
     // set variables and empty array for a new object
     let today = [], tomorrow = [], todayPlusTwo = [], todayPlusThree = [], todayPlusFour = [];
-    let betterFormattedObj = [today, tomorrow, todayPlusTwo, todayPlusThree, todayPlusFour];
+    let splitArray = [today, tomorrow, todayPlusTwo, todayPlusThree, todayPlusFour];
     let currentFullDay = new Date();
     //let currentHourMultipleOfThree = Math.floor(currentHours / 3) * 3;
 
-    // looping through object and separating into 5 new objects with the info we need
+    // compare dates, use difference factor to determine day, then organize
     for (let x = 0; x < weatherObj.list.length; x++) {
 
-        // compare dates, use difference factor to determine day, then organize
         let comparableDate = new Date(weatherObj.list[x].dt * 1000);
+        console.log(comparableDate);
         let factorOfComparableDate = comparableDate.getDate() - currentFullDay.getDate();
 
         switch (factorOfComparableDate) {
@@ -61,7 +61,7 @@ function splitObjectIntoFive(weatherObj) {
                 break;
         }
     }
-    return betterFormattedObj;
+    return splitArray;
 }
 
 
