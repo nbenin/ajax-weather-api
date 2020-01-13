@@ -16,13 +16,50 @@ async function axiosRequest() {
 
     // my Id, always the same
     const myWeatherAppId = '&APPID=1315d1ad0799dca3ca95161a1d5776e7&units=metric';
+
+    // response
     const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=Antwerp,be' + myWeatherAppId);
 
+    // split array
     let arrayOfImportantInfo = splitObjectIntoFive(response.data);
+    let mediansOfEachDay = getMediansOfAllDays(arrayOfImportantInfo);
 
-    console.log(response.data, arrayOfImportantInfo);
+    console.log(response.data, arrayOfImportantInfo, mediansOfEachDay);
 }
 
+
+// Function to get medians
+function getMediansOfAllDays(unorganizedArray) {
+
+    let arrayOfMedians = [];
+
+    for (let x = 0; x < 5; x++) {
+
+        // setting variables we need
+        let medianMaxTemp = 0;
+        let medianMinTemp = 0;
+        let medianWind = 0;
+        let medianHumidity = 0;
+
+        // loop through stuff here and add numbers
+        for (let y = 0; y < unorganizedArray[x].length; y++) {
+            medianMaxTemp += unorganizedArray[x].main.temp_max;
+            medianMinTemp += unorganizedArray[x].main.temp_min;
+            medianWind += unorganizedArray[x].wind.speed;
+            medianHumidity += unorganizedArray[x].main.humidity;
+        }
+
+        medianMaxTemp /= unorganizedArray[x].length;
+        medianMinTemp /= unorganizedArray[x].length;
+        medianWind /= unorganizedArray[x].length;
+        medianHumidity /= unorganizedArray[x].length;
+
+        let dailyObject = new DailyWeatherObject(medianMaxTemp, medianMinTemp, medianWind, medianHumidity);
+        arrayOfMedians.push(dailyObject);
+
+    }
+    return arrayOfMedians;
+}
 
 
 // function to split object into 5 arrays
@@ -67,12 +104,10 @@ function splitObjectIntoFive(weatherObj) {
 
 
 // Class for new Weather Objects
-class WeatherObject {
-    constructor(newDate, newTempMax, newTempMin, newPrecipitation, newWind, newHumidity) {
-        this.date = newDate;
+class DailyWeatherObject {
+    constructor(newTempMax, newTempMin, newWind, newHumidity) {
         this.tempMax = newTempMax;
         this.tempMin = newTempMin;
-        this.precipitation = newPrecipitation;
         this.wind = newWind;
         this.humidity = newHumidity;
     }
