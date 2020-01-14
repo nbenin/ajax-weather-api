@@ -17,30 +17,34 @@ async function axiosRequest() {
     const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=Antwerp,be' + myWeatherAppId);
 
     // split array
-    let arrayOfImportantInfo = splitObjectIntoFive(response.data);
+    let splitArray = splitObject(response.data);
 
     // get averages
-    let averagesOfEachDay = getAveragesOfAllDays(arrayOfImportantInfo);
+    let dailyAverage = getAverages(splitArray);
 
     // add values in array to bootstrap cards
-    addInfoToCards(averagesOfEachDay);
+    addInfoToCards(dailyAverage);
 
-    console.log(response.data, arrayOfImportantInfo, averagesOfEachDay);
+    console.log(response.data, splitArray, dailyAverage);
 }
 
 // function to split object into 5 arrays
-function splitObjectIntoFive(weatherObj) {
+function splitObject(weatherObj) {
 
     // set variables and empty array for a new object
     let today = [], tomorrow = [], todayPlusTwo = [], todayPlusThree = [], todayPlusFour = [];
     let splitArray = [today, tomorrow, todayPlusTwo, todayPlusThree, todayPlusFour];
-    let currentFullDay = new Date();
+    let currentDay = new Date();
 
     // compare dates, use difference factor to determine day, then organize
     for (let x = 0; x < weatherObj.list.length; x++) {
 
         let comparableDate = new Date(weatherObj.list[x].dt * 1000);
-        let factorOfComparableDate = Math.abs(comparableDate.getDay() - currentFullDay.getDay());
+        let factorOfComparableDate = comparableDate.getDay() - currentDay.getDay();
+
+        if (factorOfComparableDate < 0) {
+            factorOfComparableDate += 7;
+        }
 
         switch (factorOfComparableDate) {
             case 0:
@@ -66,7 +70,8 @@ function splitObjectIntoFive(weatherObj) {
 }
 
 // Function to get averages
-function getAveragesOfAllDays(unorganizedArray) {
+function getAverages(organizedArray) {
+    console.log(organizedArray);
 
     let arrayOfAverages = [];
 
@@ -77,21 +82,28 @@ function getAveragesOfAllDays(unorganizedArray) {
         let averageMinTemp = 0;
         let averageWind = 0;
         let averageHumidity = 0;
+        let weatherConditions;
+        let mainCondition;
+        let day;
 
-        // loop through stuff here and add numbers
-        for (let y = 0; y < unorganizedArray[x].length; y++) {
-            averageMaxTemp += unorganizedArray[x][y].main.temp_max;
-            averageMinTemp += unorganizedArray[x][y].main.temp_min;
-            averageWind += unorganizedArray[x][y].wind.speed;
-            averageHumidity += unorganizedArray[x][y].main.humidity;
+        // loop through stuff here and add averages for objects
+        for (let y = 0; y < organizedArray[x].length; y++) {
+            averageMaxTemp += organizedArray[x][y].main.temp_max;
+            averageMinTemp += organizedArray[x][y].main.temp_min;
+            averageWind += organizedArray[x][y].wind.speed;
+            averageHumidity += organizedArray[x][y].main.humidity;
+            weatherConditions = organizedArray[x][y].weather[0].description;
+            mainCondition = organizedArray[x][y].weather[0].main;
+            day = new Date(organizedArray[x][y].dt * 1000).getDay();
         }
 
-        averageMaxTemp /= unorganizedArray[x].length;
-        averageMinTemp /= unorganizedArray[x].length;
-        averageWind /= unorganizedArray[x].length;
-        averageHumidity /= unorganizedArray[x].length;
 
-        let dailyObject = new DailyWeatherObject(averageMaxTemp, averageMinTemp, averageWind, averageHumidity);
+        averageMaxTemp = Math.round(averageMaxTemp / organizedArray[x].length * 10) / 10;
+        averageMinTemp = Math.round(averageMinTemp / organizedArray[x].length * 10) / 10;
+        averageWind = Math.round(averageWind / organizedArray[x].length * 10) / 10;
+        averageHumidity = Math.round(averageHumidity / organizedArray[x].length * 10) / 10;
+
+        let dailyObject = new DailyWeatherObject(averageMaxTemp, averageMinTemp, averageWind, averageHumidity, weatherConditions, mainCondition, day);
         arrayOfAverages.push(dailyObject);
 
     }
@@ -101,18 +113,18 @@ function getAveragesOfAllDays(unorganizedArray) {
 // Function to add info to cards
 function addInfoToCards(averagesArray) {
 
-
-
     for (x = 0; x < 5; x++) {
 
         // clone template of cards
         let unclonedCardTemplate = document.getElementById('cardTemplate');
         let cardTemplate = unclonedCardTemplate.content.cloneNode(true);
+        let daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-        cardTemplate.querySelector('#max-temp').innerHTML = averagesArray[x].tempMax;
-        cardTemplate.querySelector('#min-temp').innerHTML = averagesArray[x].tempMin;
-        cardTemplate.querySelector('#wind-speed').innerHTML = averagesArray[x].wind;
-        cardTemplate.querySelector('#humidity').innerHTML = averagesArray[x].humidity;
+        cardTemplate.querySelector('#max-temp').innerHTML = 'High: ' + averagesArray[x].tempMax + '&#8451';
+        cardTemplate.querySelector('#min-temp').innerHTML = 'Low: ' + averagesArray[x].tempMin + '&#8451';
+        cardTemplate.querySelector('#wind-speed').innerHTML = 'Wind Speed: ' + averagesArray[x].wind + 'km/h';
+        cardTemplate.querySelector('#humidity').innerHTML = 'Humidity: ' + averagesArray[x].humidity + '%';
+        cardTemplate.querySelector('#dayName').innerHTML = daysOfWeek[averagesArray[x].day];
 
         document.getElementById('card-deck').appendChild(cardTemplate);
 
@@ -120,13 +132,17 @@ function addInfoToCards(averagesArray) {
     }
     console.log(averagesArray);
 }
+
 // Class for new Weather Objects
 class DailyWeatherObject {
-    constructor(newTempMax, newTempMin, newWind, newHumidity) {
+    constructor(newTempMax, newTempMin, newWind, newHumidity, newDescription, newMain, newDay) {
         this.tempMax = newTempMax;
         this.tempMin = newTempMin;
         this.wind = newWind;
         this.humidity = newHumidity;
+        this.description = newDescription;
+        this.main = newMain;
+        this.day = newDay;
     }
 }
 
