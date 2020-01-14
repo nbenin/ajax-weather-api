@@ -4,8 +4,20 @@
         axiosRequest().catch(error => {
             console.log(error);
         });
+        backgroundImage().catch(error => {
+            console.log(error);
+        })
     });
 })();
+
+// Async for background Image, thanks Erick!!
+async function backgroundImage() {
+    let countryInput = document.getElementById('formCityInput').value;
+    let response = await fetch('https://api.unsplash.com/search/photos?query=$' + countryInput + '&client_id=8b3303518e733b03bb9fbe890041915da381de31ef0602ad71dc8adfd4b79f83');
+    let data = await response.json();
+    let countryImage = data['results'][0]['urls']['regular'];
+    document.body.style.backgroundImage = 'url' + "('" + countryImage + "')";
+}
 
 // async function for fetching url
 async function axiosRequest() {
@@ -73,15 +85,14 @@ function splitObject(weatherObj) {
 
 // Function to get averages
 function getAverages(organizedArray) {
-    console.log(organizedArray);
 
     let arrayOfAverages = [];
 
     for (let x = 0; x < 5; x++) {
 
         // setting variables we need
-        let averageMaxTemp = 0;
-        let averageMinTemp = 0;
+        let maxTemp = 0;
+        let minTemp = 0;
         let averageWind = 0;
         let averageHumidity = 0;
         let weatherConditions;
@@ -90,22 +101,23 @@ function getAverages(organizedArray) {
 
         // loop through stuff here and add averages for objects
         for (let y = 0; y < organizedArray[x].length; y++) {
-            averageMaxTemp += organizedArray[x][y].main.temp_max;
-            averageMinTemp += organizedArray[x][y].main.temp_min;
-            averageWind += organizedArray[x][y].wind.speed;
+            if (maxTemp < organizedArray[x][y].main.temp_max || y === 0) {
+                maxTemp = organizedArray[x][y].main.temp_max;
+            }
+            if (minTemp > organizedArray[x][y].main.temp_min || y === 0) {
+                minTemp = organizedArray[x][y].main.temp_min;
+            }
+            averageWind += organizedArray[x][y].wind.speed * 3.6;
             averageHumidity += organizedArray[x][y].main.humidity;
             weatherConditions = organizedArray[x][y].weather[0].description;
             mainCondition = organizedArray[x][y].weather[0].main;
             day = new Date(organizedArray[x][y].dt * 1000).getDay();
         }
 
-
-        averageMaxTemp = Math.round(averageMaxTemp / organizedArray[x].length * 10) / 10;
-        averageMinTemp = Math.round(averageMinTemp / organizedArray[x].length * 10) / 10;
-        averageWind = Math.round(averageWind / organizedArray[x].length * 10) / 10;
+        averageWind = (Math.round(averageWind / organizedArray[x].length * 10) / 10);
         averageHumidity = Math.round(averageHumidity / organizedArray[x].length * 10) / 10;
 
-        let dailyObject = new DailyWeatherObject(averageMaxTemp, averageMinTemp, averageWind, averageHumidity, weatherConditions, mainCondition, day);
+        let dailyObject = new DailyWeatherObject(maxTemp, minTemp, averageWind, averageHumidity, weatherConditions, mainCondition, day);
         arrayOfAverages.push(dailyObject);
 
     }
@@ -115,6 +127,15 @@ function getAverages(organizedArray) {
 // Function to add info to cards
 function addInfoToCards(averagesArray) {
 
+    // If there are cards already, remove them
+    if (document.getElementsByClassName('card').length > 0) {
+        let cards = document.getElementsByClassName('card');
+        for (x = 0; x < 5; x++) {
+            document.getElementById('card-deck').removeChild(cards[0]);
+        }
+    }
+
+    // Loop through object array and add relevant info
     for (x = 0; x < 5; x++) {
 
         // clone template of cards
@@ -129,7 +150,6 @@ function addInfoToCards(averagesArray) {
         cardTemplate.querySelector('#dayName').innerHTML = daysOfWeek[averagesArray[x].day];
 
         document.getElementById('card-deck').appendChild(cardTemplate);
-
 
     }
     console.log(averagesArray);

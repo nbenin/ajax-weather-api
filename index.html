@@ -6,17 +6,18 @@
 
     <!-- Css -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/main.css">
 
     <title>Ajax Weather Api</title>
 </head>
 <body>
 
-<div class="container text-center">
+<div id="titles" class="container w-50 text-center">
     <h1>Ajax Weather API</h1>
+    <h4>Enter city to see 5-day forecast</h4>
 </div>
 <form>
     <div class="form-group text-center">
-        <h4>Enter city to see 5-day forecast</h4>
         <input type="text" class="form-control w-50 mx-auto" id="formCityInput" required placeholder="Enter City">
         <input type="text" class="form-control w-50 mx-auto" id="formCountryInput" required placeholder="Enter Country (2 letter format)">
         <button type="button" class="btn btn-primary my-2" id="submit">Submit</button>
