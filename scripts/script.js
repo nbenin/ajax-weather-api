@@ -7,8 +7,6 @@
     });
 })();
 
-
-
 // async function for fetching url
 async function axiosRequest() {
 
@@ -21,48 +19,14 @@ async function axiosRequest() {
     // split array
     let arrayOfImportantInfo = splitObjectIntoFive(response.data);
 
-    // get medians
-    let mediansOfEachDay = getMediansOfAllDays(arrayOfImportantInfo);
+    // get averages
+    let averagesOfEachDay = getAveragesOfAllDays(arrayOfImportantInfo);
 
     // add values in array to bootstrap cards
+    addInfoToCards(averagesOfEachDay);
 
-    console.log(response.data, arrayOfImportantInfo, mediansOfEachDay);
+    console.log(response.data, arrayOfImportantInfo, averagesOfEachDay);
 }
-
-
-// Function to get medians
-function getMediansOfAllDays(unorganizedArray) {
-
-    let arrayOfMedians = [];
-
-    for (let x = 0; x < 5; x++) {
-
-        // setting variables we need
-        let medianMaxTemp = 0;
-        let medianMinTemp = 0;
-        let medianWind = 0;
-        let medianHumidity = 0;
-
-        // loop through stuff here and add numbers
-        for (let y = 0; y < unorganizedArray[x].length; y++) {
-            medianMaxTemp += unorganizedArray[x][y].main.temp_max;
-            medianMinTemp += unorganizedArray[x][y].main.temp_min;
-            medianWind += unorganizedArray[x][y].wind.speed;
-            medianHumidity += unorganizedArray[x][y].main.humidity;
-        }
-
-        medianMaxTemp /= unorganizedArray[x].length;
-        medianMinTemp /= unorganizedArray[x].length;
-        medianWind /= unorganizedArray[x].length;
-        medianHumidity /= unorganizedArray[x].length;
-
-        let dailyObject = new DailyWeatherObject(medianMaxTemp, medianMinTemp, medianWind, medianHumidity);
-        arrayOfMedians.push(dailyObject);
-
-    }
-    return arrayOfMedians;
-}
-
 
 // function to split object into 5 arrays
 function splitObjectIntoFive(weatherObj) {
@@ -76,7 +40,7 @@ function splitObjectIntoFive(weatherObj) {
     for (let x = 0; x < weatherObj.list.length; x++) {
 
         let comparableDate = new Date(weatherObj.list[x].dt * 1000);
-        let factorOfComparableDate = comparableDate.getDate() - currentFullDay.getDate();
+        let factorOfComparableDate = Math.abs(comparableDate.getDay() - currentFullDay.getDay());
 
         switch (factorOfComparableDate) {
             case 0:
@@ -101,6 +65,61 @@ function splitObjectIntoFive(weatherObj) {
     return splitArray;
 }
 
+// Function to get averages
+function getAveragesOfAllDays(unorganizedArray) {
+
+    let arrayOfAverages = [];
+
+    for (let x = 0; x < 5; x++) {
+
+        // setting variables we need
+        let averageMaxTemp = 0;
+        let averageMinTemp = 0;
+        let averageWind = 0;
+        let averageHumidity = 0;
+
+        // loop through stuff here and add numbers
+        for (let y = 0; y < unorganizedArray[x].length; y++) {
+            averageMaxTemp += unorganizedArray[x][y].main.temp_max;
+            averageMinTemp += unorganizedArray[x][y].main.temp_min;
+            averageWind += unorganizedArray[x][y].wind.speed;
+            averageHumidity += unorganizedArray[x][y].main.humidity;
+        }
+
+        averageMaxTemp /= unorganizedArray[x].length;
+        averageMinTemp /= unorganizedArray[x].length;
+        averageWind /= unorganizedArray[x].length;
+        averageHumidity /= unorganizedArray[x].length;
+
+        let dailyObject = new DailyWeatherObject(averageMaxTemp, averageMinTemp, averageWind, averageHumidity);
+        arrayOfAverages.push(dailyObject);
+
+    }
+    return arrayOfAverages;
+}
+
+// Function to add info to cards
+function addInfoToCards(averagesArray) {
+
+
+
+    for (x = 0; x < 5; x++) {
+
+        // clone template of cards
+        let unclonedCardTemplate = document.getElementById('cardTemplate');
+        let cardTemplate = unclonedCardTemplate.content.cloneNode(true);
+
+        cardTemplate.querySelector('#max-temp').innerHTML = averagesArray[x].tempMax;
+        cardTemplate.querySelector('#min-temp').innerHTML = averagesArray[x].tempMin;
+        cardTemplate.querySelector('#wind-speed').innerHTML = averagesArray[x].wind;
+        cardTemplate.querySelector('#humidity').innerHTML = averagesArray[x].humidity;
+
+        document.getElementById('card-deck').appendChild(cardTemplate);
+
+
+    }
+    console.log(averagesArray);
+}
 // Class for new Weather Objects
 class DailyWeatherObject {
     constructor(newTempMax, newTempMin, newWind, newHumidity) {
