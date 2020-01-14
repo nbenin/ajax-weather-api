@@ -10,11 +10,13 @@
 // async function for fetching url
 async function axiosRequest() {
 
-    // my Id, always the same
+    // get user values and my ID
+    let city = document.getElementById('formCityInput').value;
+    let country = document.getElementById('formCountryInput').value;
     const myWeatherAppId = '&APPID=1315d1ad0799dca3ca95161a1d5776e7&units=metric';
 
     // response
-    const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=Antwerp,be' + myWeatherAppId);
+    const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',' + country + myWeatherAppId);
 
     // split array
     let splitArray = splitObject(response.data);
