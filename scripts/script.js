@@ -1,3 +1,7 @@
+// Couple of global variables
+const DAYS = 5;
+const WINDSPEEDFACTOR = 3.6;
+
 // ASYNC FUNCTION LES GO
 (function () {
     document.getElementById('submit').addEventListener('click', function() {
@@ -13,9 +17,8 @@
 // Async for background Image, thanks Erick!!
 async function backgroundImage() {
     let countryInput = document.getElementById('formCityInput').value;
-    let response = await fetch('https://api.unsplash.com/search/photos?query=$' + countryInput + '&client_id=8b3303518e733b03bb9fbe890041915da381de31ef0602ad71dc8adfd4b79f83');
-    let data = await response.json();
-    let countryImage = data['results'][0]['urls']['regular'];
+    let response = await axios.get('https://api.unsplash.com/search/photos?query=$' + countryInput + '&client_id=8b3303518e733b03bb9fbe890041915da381de31ef0602ad71dc8adfd4b79f83');
+    let countryImage = response.data.results[0].urls.regular;
     document.body.style.backgroundImage = 'url' + "('" + countryImage + "')";
 }
 
@@ -25,62 +28,44 @@ async function axiosRequest() {
     // Get user values and my ID
     let city = document.getElementById('formCityInput').value;
     let country = document.getElementById('formCountryInput').value;
-    const myWeatherAppId = '&APPID=1315d1ad0799dca3ca95161a1d5776e7&units=metric';
+    const MYAPPID = '&APPID=1315d1ad0799dca3ca95161a1d5776e7&units=metric';
 
     // Response
-    const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',' + country + myWeatherAppId);
+    const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',' + country + MYAPPID);
 
-    // Split array
+    // Split array, get averages, make objects, add to cards
+    // could format this like this, but seems wrong
+    // addInfoToCards(getAverages(splitObject(response.data)));
     let splitArray = splitObject(response.data);
-
-    // Get averages
     let dailyAverage = getAverages(splitArray);
-
-    // Add values in array to bootstrap cards
     addInfoToCards(dailyAverage);
-
-    console.log(response.data, splitArray, dailyAverage);
 }
 
 // Function to split object into 5 arrays
 function splitObject(weatherObj) {
 
-    // Set variables and empty array for a new object
-    let today = [], tomorrow = [], todayPlusTwo = [], todayPlusThree = [], todayPlusFour = [];
-    let splitArray = [today, tomorrow, todayPlusTwo, todayPlusThree, todayPlusFour];
-    let currentDay = new Date();
+    // Set empty array for a new object
+    let daysArray = [];
+    for (y = 0; y < DAYS; y++) {
+        daysArray.push([]);
+    }
 
     // Compare dates, use difference factor to determine day, then organize
+    let currentDay = new Date();
     for (let x = 0; x < weatherObj.list.length; x++) {
 
         let comparableDate = new Date(weatherObj.list[x].dt * 1000);
-        let factorOfComparableDate = comparableDate.getDay() - currentDay.getDay();
+        let dayNumber = comparableDate.getDay() - currentDay.getDay();
 
-        if (factorOfComparableDate < 0) {
-            factorOfComparableDate += 7;
+        // Make sure numbers are not a bad value
+        dayNumber = (dayNumber < 0) ? dayNumber += 7 : dayNumber;
+        if (dayNumber === (DAYS)) {
+            break;
         }
 
-        switch (factorOfComparableDate) {
-            case 0:
-                today.push(weatherObj.list[x]);
-                break;
-            case 1:
-                tomorrow.push(weatherObj.list[x]);
-                break;
-            case 2:
-                todayPlusTwo.push(weatherObj.list[x]);
-                break;
-            case 3:
-                todayPlusThree.push(weatherObj.list[x]);
-                break;
-            case 4:
-                todayPlusFour.push(weatherObj.list[x]);
-                break;
-            case 5:
-                break;
-        }
+        daysArray[dayNumber].push(weatherObj.list[x]);
     }
-    return splitArray;
+    return daysArray;
 }
 
 // Function to get averages
@@ -88,16 +73,16 @@ function getAverages(organizedArray) {
 
     let arrayOfAverages = [];
 
-    for (let x = 0; x < 5; x++) {
+    for (let x = 0; x < DAYS; x++) {
 
         // Setting variables we need
         let maxTemp = 0;
         let minTemp = 0;
         let averageWind = 0;
         let averageHumidity = 0;
-        let weatherConditions;
-        let mainCondition;
-        let day;
+        let weatherConditions = '';
+        let mainCondition = '';
+        let day = 0;
 
         // Loop through stuff here and add averages to objects
         for (let y = 0; y < organizedArray[x].length; y++) {
@@ -107,7 +92,7 @@ function getAverages(organizedArray) {
             if (minTemp > organizedArray[x][y].main.temp_min || y === 0) {
                 minTemp = organizedArray[x][y].main.temp_min;
             }
-            averageWind += organizedArray[x][y].wind.speed * 3.6;
+            averageWind += organizedArray[x][y].wind.speed * WINDSPEEDFACTOR;
             averageHumidity += organizedArray[x][y].main.humidity;
             weatherConditions = organizedArray[x][y].weather[0].description;
             mainCondition = organizedArray[x][y].weather[0].main;
@@ -130,13 +115,13 @@ function addInfoToCards(averagesArray) {
     // If there are cards already, remove them
     if (document.getElementsByClassName('card').length > 0) {
         let cards = document.getElementsByClassName('card');
-        for (x = 0; x < 5; x++) {
+        for (x = 0; x < DAYS; x++) {
             document.getElementById('card-deck').removeChild(cards[0]);
         }
     }
 
     // Loop through object array and add relevant info
-    for (x = 0; x < 5; x++) {
+    for (x = 0; x < DAYS; x++) {
 
         // Clone template of cards and append
         let unclonedCardTemplate = document.getElementById('cardTemplate');
