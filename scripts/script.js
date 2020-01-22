@@ -37,7 +37,7 @@ async function axiosRequest() {
 
     // Response
     const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=' + city + MYAPPID);
-
+    console.log(response);
     // Split array, get averages, make objects, add to cards
     // could format this like this, but seems wrong
     // addInfoToCards(getAverages(splitObject(response.data)));
@@ -88,6 +88,7 @@ function getAverages(organizedArray) {
         let weatherConditions = '';
         let mainCondition = '';
         let day = 0;
+        let icon = '';
 
         // Loop through stuff here and add averages to objects
         for (let y = 0; y < organizedArray[x].length; y++) {
@@ -102,12 +103,13 @@ function getAverages(organizedArray) {
             weatherConditions = organizedArray[x][y].weather[0].description;
             mainCondition = organizedArray[x][y].weather[0].main;
             day = new Date(organizedArray[x][y].dt * 1000).getDay();
+            icon = "http://openweathermap.org/img/w/" + organizedArray[x][y].weather[0].icon + ".png";
         }
 
         averageWind = (Math.round(averageWind / organizedArray[x].length * 10) / 10);
         averageHumidity = Math.round(averageHumidity / organizedArray[x].length * 10) / 10;
 
-        let dailyObject = new DailyWeatherObject(maxTemp, minTemp, averageWind, averageHumidity, weatherConditions, mainCondition, day);
+        let dailyObject = new DailyWeatherObject(maxTemp, minTemp, averageWind, averageHumidity, weatherConditions, mainCondition, day, icon);
         arrayOfAverages.push(dailyObject);
 
     }
@@ -117,22 +119,26 @@ function getAverages(organizedArray) {
 // Function to add info to cards
 function addInfoToCards(averagesArray) {
 
+    console.log(averagesArray);
     // Loop through object array and add relevant info
     for (x = 0; x < DAYS; x++) {
 
+        let dayId = 'day' + (x + 1);
         let daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+        document.getElementsByClassName('weatherSprite')[x].src = averagesArray[x].icon;
         document.getElementsByClassName('dayName')[x].innerHTML = daysOfWeek[averagesArray[x].day];
         document.getElementsByClassName('max-temp')[x].innerHTML = 'High: ' + averagesArray[x].tempMax + '&#8451';
         document.getElementsByClassName('min-temp')[x].innerHTML = 'Low: ' + averagesArray[x].tempMin + '&#8451';
         document.getElementsByClassName('wind-speed')[x].innerHTML = 'Wind Speed: ' + averagesArray[x].wind + 'km/h';
         document.getElementsByClassName('humidity')[x].innerHTML = 'Humidity: ' + averagesArray[x].humidity + '%';
     }
+
 }
 
 // Class for new Weather Objects
 class DailyWeatherObject {
-    constructor(newTempMax, newTempMin, newWind, newHumidity, newDescription, newMain, newDay) {
+    constructor(newTempMax, newTempMin, newWind, newHumidity, newDescription, newMain, newDay, newIcon) {
         this.tempMax = newTempMax;
         this.tempMin = newTempMin;
         this.wind = newWind;
@@ -140,6 +146,7 @@ class DailyWeatherObject {
         this.description = newDescription;
         this.main = newMain;
         this.day = newDay;
+        this.icon = newIcon;
     }
 }
 
