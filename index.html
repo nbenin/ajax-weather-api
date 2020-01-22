@@ -5,103 +5,66 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 
     <!-- Css -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="assets/main.css">
 
     <title>Ajax Weather Api</title>
 </head>
 <body>
 
-<div id="titles" class="container w-50 text-center">
-    <h1>Ajax Weather API</h1>
-    <h4>Enter city to see 5-day forecast</h4>
-</div>
-<form>
-    <div class="form-group text-center">
-        <input type="text" class="form-control w-50 mx-auto" id="formCityInput" required placeholder="Enter City">
-        <input type="text" class="form-control w-50 mx-auto" id="formCountryInput" required placeholder="Enter Country (2 letter format)">
-        <button type="button" class="btn btn-primary my-2" id="submit">Submit</button>
-    </div>
-</form>
-
-<!-- Template for cards -->
-<template class="container" id="cardTemplate">
-    <div class="card">
-        <div class="card-img-top">
-            <div class="card-body">
-                <h5 class="card-title" id="dayName"></h5>
-                <p class="card-text" id="max-temp"></p>
-                <p class="card-text" id="min-temp"></p>
-                <p class="card-text" id="wind-speed"></p>
-                <p class="card-text" id="humidity"></p>
-            </div>
-        </div>
-    </div>
-</template>
-<!-- End Template -->
-
 <!-- Trying some CSS grid -->
 <div class="grid-container">
     <div class="grid-item" id="header">
-       <h1>Ajax Weather API</h1>
-    </div>
-    <div class="grid-item" id="subHeader">
+       <h1>Ajax Weather API</h1> <br/>
         <h4>Enter city (country optional) to see 5 day forecast</h4>
     </div>
-    <div class="grid-item" id="inputOne">
-        <input type="text" required id="formCityInput">
-    </div>
-    <div class="grid-item" id="inputTwo">
-        <input type="text" required id="formCountryInput">
-    </div>
-    <div class="grid-item" id="submitButton">
+
+    <div class="grid-item" id="input">
+        <input type="text" required id="formCityInput"> <br/>
         <button type="button" id="submit">Submit</button>
     </div>
-    <div class="grid-item" id="one">
-        <h5>HIHI</h5>
-        <p>info</p>
-        <p>info2</p>
-        <p>info3</p>
+
+    <div class="grid-item" id="day1">
+        <h5 class="dayName">HIHI</h5>
+        <img class="weatherSprite">
+        <p class="max-temp">info</p>
+        <p class="min-temp">info2</p>
+        <p class="wind-speed">info3</p>
+        <p class="humidity"></p>
     </div>
-    <div class="grid-item" id="two">
-        <h5>HIHI</h5>
-        <p>info</p>
-        <p>info2</p>
-        <p>info3</p>
+    <div class="grid-item" id="day2">
+        <h5 class="dayName">HIHI</h5>
+        <img class="weatherSprite">
+        <p class="max-temp">info</p>
+        <p class="min-temp">info2</p>
+        <p class="wind-speed">info3</p>
+        <p class="humidity"></p>
     </div>
-    <div class="grid-item" id="three">
-        <h5>HIHI</h5>
-        <p>info</p>
-        <p>info2</p>
-        <p>info3</p>
+    <div class="grid-item" id="day3">
+        <h5 class="dayName">HIHI</h5>
+        <img class="weatherSprite">
+        <p class="max-temp">info</p>
+        <p class="min-temp">info2</p>
+        <p class="wind-speed">info3</p>
+        <p class="humidity"></p>
     </div>
-    <div class="grid-item" id="four">
-        <h5>HIHI</h5>
-        <p>info</p>
-        <p>info2</p>
-        <p>info3</p>
+    <div class="grid-item" id="day4">
+        <h5 class="dayName">HIHI</h5>
+        <img class="weatherSprite">
+        <p class="max-temp">info</p>
+        <p class="min-temp">info2</p>
+        <p class="wind-speed">info3</p>
+        <p class="humidity"></p>
     </div>
-    <div class="grid-item" id="five">
-        <h5>HIHI</h5>
-        <p>info</p>
-        <p>info2</p>
-        <p>info3</p>
+    <div class="grid-item" id="day5">
+        <h5 class="dayName">HIHI</h5>
+        <img class="weatherSprite">
+        <p class="max-temp">info</p>
+        <p class="min-temp">info2</p>
+        <p class="wind-speed">info3</p>
+        <p class="humidity"></p>
     </div>
 </div>
 <!-- End grid -->
-
-<div class="container">
-    <div class="card-deck" id="card-deck">
-
-    </div>
-</div>
-
-
-<!-- Bootstrap Scripts -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
 <!-- JS Scripts -->
 
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>

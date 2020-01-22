@@ -5,6 +5,12 @@ const WINDSPEEDFACTOR = 3.6;
 // ASYNC FUNCTION LES GO
 (function () {
     document.getElementById('submit').addEventListener('click', function() {
+
+        // setting boxes to hidden
+        for (let x = 0; x < DAYS; x++) {
+            document.getElementById("day")
+        }
+
         axiosRequest().catch(error => {
             console.log(error);
         });
@@ -27,11 +33,10 @@ async function axiosRequest() {
 
     // Get user values and my ID
     let city = document.getElementById('formCityInput').value;
-    let country = document.getElementById('formCountryInput').value;
     const MYAPPID = '&APPID=1315d1ad0799dca3ca95161a1d5776e7&units=metric';
 
     // Response
-    const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=' + city + ',' + country + MYAPPID);
+    const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast?q=' + city + MYAPPID);
 
     // Split array, get averages, make objects, add to cards
     // could format this like this, but seems wrong
@@ -112,30 +117,16 @@ function getAverages(organizedArray) {
 // Function to add info to cards
 function addInfoToCards(averagesArray) {
 
-    // If there are cards already, remove them
-    if (document.getElementsByClassName('card').length > 0) {
-        let cards = document.getElementsByClassName('card');
-        for (x = 0; x < DAYS; x++) {
-            document.getElementById('card-deck').removeChild(cards[0]);
-        }
-    }
-
     // Loop through object array and add relevant info
     for (x = 0; x < DAYS; x++) {
 
-        // Clone template of cards and append
-        let unclonedCardTemplate = document.getElementById('cardTemplate');
-        let cardTemplate = unclonedCardTemplate.content.cloneNode(true);
         let daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-        cardTemplate.querySelector('#max-temp').innerHTML = 'High: ' + averagesArray[x].tempMax + '&#8451';
-        cardTemplate.querySelector('#min-temp').innerHTML = 'Low: ' + averagesArray[x].tempMin + '&#8451';
-        cardTemplate.querySelector('#wind-speed').innerHTML = 'Wind Speed: ' + averagesArray[x].wind + 'km/h';
-        cardTemplate.querySelector('#humidity').innerHTML = 'Humidity: ' + averagesArray[x].humidity + '%';
-        cardTemplate.querySelector('#dayName').innerHTML = daysOfWeek[averagesArray[x].day];
-
-        document.getElementById('card-deck').appendChild(cardTemplate);
-
+        document.getElementsByClassName('dayName')[x].innerHTML = daysOfWeek[averagesArray[x].day];
+        document.getElementsByClassName('max-temp')[x].innerHTML = 'High: ' + averagesArray[x].tempMax + '&#8451';
+        document.getElementsByClassName('min-temp')[x].innerHTML = 'Low: ' + averagesArray[x].tempMin + '&#8451';
+        document.getElementsByClassName('wind-speed')[x].innerHTML = 'Wind Speed: ' + averagesArray[x].wind + 'km/h';
+        document.getElementsByClassName('humidity')[x].innerHTML = 'Humidity: ' + averagesArray[x].humidity + '%';
     }
 }
 
